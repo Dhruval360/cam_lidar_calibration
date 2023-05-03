@@ -73,6 +73,7 @@ namespace cam_lidar_calibration
         image_pc_sync_ = std::make_shared<message_filters::Synchronizer<ImageLidarSyncPolicy>>(
                 ImageLidarSyncPolicy(queue_rate_), *image_sub_, *pc_sub_);
         image_pc_sync_->registerCallback(boost::bind(&FeatureExtractor::extractRegionOfInterest, this, _1, _2));
+        image_pc_sync_->setReset(true);
 
         board_cloud_pub_ = private_nh.advertise<PointCloud>("chessboard", 1);
         bounded_cloud_pub_ = private_nh.advertise<PointCloud>("experimental_region", 10);
@@ -867,6 +868,8 @@ namespace cam_lidar_calibration
                 ROS_ERROR("Sample capture failed: can't detect chessboard in camera image");
                 ROS_INFO("Ready to capture sample");
                 return;
+            } else {
+                ROS_INFO("Checkerboard Found");
             }
 
             cam_lidar_calibration::OptimisationSample sample;

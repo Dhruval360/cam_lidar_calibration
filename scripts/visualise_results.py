@@ -83,7 +83,8 @@ def visualise_results(gauss, nbins_list, degree):
 		ax[r,c].plot(x, y, 'b-', color="black")
 		ax[r,c].set_xlabel(param['key'] + ' (' + param['metric'] + ')')
 		ax[r,c].set_ylabel('Frequency')
-		ax[r,c].set_ylim(0, max(y)+float(max(y))/5)
+		maxLim = max(y)[0]
+		ax[r,c].set_ylim(0, maxLim+float(maxLim)/5)
 		ax[r,c].yaxis.set_major_formatter(FormatStrFormatter('%.0f'))
 		if degree and idx > 2:
 			ax[r,c].xaxis.set_major_formatter(FormatStrFormatter('%.1f'))
@@ -101,7 +102,7 @@ def visualise_results(gauss, nbins_list, degree):
 		else:
 			ax[r,c].annotate(param['key'] + "=% .5f\nstd=% .5f" % (mu, stdev), xy=(mu, max(y)), xytext=(0.94,0.96), **kw)
 		
-	plt.show(block=False)
+	plt.show()
 
 if __name__ == '__main__':
 	rospy.init_node('visualise_results', anonymous=True)
