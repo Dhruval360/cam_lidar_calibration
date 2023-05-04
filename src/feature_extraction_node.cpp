@@ -7,11 +7,19 @@
 using actionlib::SimpleActionServer;
 using cam_lidar_calibration::FeatureExtractor;
 
+#include "matlab_checkerboard_detection/matlabCheckerBoardDetect.h"
+#include "matlab_checkerboard_detection/matlabCheckerBoardDetect_internal_types.h"
+
 int main(int argc, char** argv)
 {
+    static rtRunTimeErrorInfo s_emlrtRTEI{
+        1,                         // lineNo
+        "matlabCheckerBoardDetect" // fName
+    };
     // Initialize Node and handles
     ros::init(argc, argv, "FeatureExtractor");
     ros::NodeHandle n;
+
 
     FeatureExtractor feature_extractor;
     SimpleActionServer<cam_lidar_calibration::RunOptimiseAction> optimise_action(
@@ -37,6 +45,7 @@ int main(int argc, char** argv)
         feature_extractor.visualiseSamples();
         loop_rate.sleep();
     }
+    matlabCheckerBoardDetect_terminate();
     return 0;
 }
 

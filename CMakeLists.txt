@@ -3,6 +3,17 @@ project(cam_lidar_calibration)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+set(MATLAB_LIBRARIES
+    mwbwlookup_tbb
+    mwippfilter
+    stdc++
+    mwimfilter
+    mwipp
+    tbbmalloc
+    mwimregionalmax
+    mwnhood
+    tbb
+)
 
 find_package(catkin REQUIRED COMPONENTS
   actionlib
@@ -27,6 +38,11 @@ find_package(OpenCV REQUIRED)
 find_package(Boost REQUIRED COMPONENTS system)
 find_package(Eigen3 REQUIRED)
 find_package(Qt5 REQUIRED Core Widgets)
+find_package(OpenMP REQUIRED)
+if(OpenMP_FOUND)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+endif()
 
 ## Setup include directories
 include_directories(
@@ -36,7 +52,7 @@ include_directories(
   ${Eigen_INCLUDE_DIRS}
   )
 
-link_directories(${catkin_LIBRARY_DIRS})
+link_directories(${catkin_LIBRARY_DIRS} lib)
 
 add_definitions(-DQT_NO_KEYWORDS)
 
@@ -76,12 +92,17 @@ add_library(cam_lidar_calibration
   src/feature_extractor.cpp
   src/load_params.cpp
   src/optimiser.cpp
+  src/matlabCheckerBoardDetect.cpp
+  src/rt_nonfinite.cpp
+  src/rtGetInf.cpp
+  src/rtGetNaN.cpp
         )
 target_link_libraries(cam_lidar_calibration
   ${catkin_LIBRARIES}
   ${OpenCV_LIBS}
   ${Eigen_LIBRARIES}
   Qt5::Widgets
+  ${MATLAB_LIBRARIES}
   )
 
 add_executable(feature_extraction_node src/feature_extraction_node.cpp)

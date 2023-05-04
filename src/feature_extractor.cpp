@@ -35,6 +35,11 @@
 // For shuffling of generated sets
 #include <algorithm>
 
+// Matlab Checkerboard Detection Algorithm
+#include "matlab_checkerboard_detection/coder_array.h"
+#include "matlab_checkerboard_detection/matlabCheckerBoardDetect.h"
+
+
 using cv::findChessboardCorners;
 using cv::Mat_;
 using cv::Size;
@@ -628,6 +633,31 @@ namespace cam_lidar_calibration
         return std::make_tuple(rvec, tvec, board_corners_3d);
     }
 
+    static coder::array<unsigned char, 2U> cvMat2MatlabCoderArray(const cv::Mat &grayscaleImage) {
+        coder::array<unsigned char, 2U> result;
+        result.set_size(grayscaleImage.cols, grayscaleImage.rows);
+        for (int idx0{0}; idx0 < result.size(0); idx0++) {
+            for (int idx1{0}; idx1 < result.size(1); idx1++) {
+                result[idx0 + result.size(0) * idx1] = grayscaleImage.at<unsigned char>(idx0, idx1); // Matlab uses Column Major representation
+            }
+        }
+        return result;
+    }
+
+    bool detectChessBoardCorners(const cv::Mat grayScaleImage, cv::Size chessboard_pattern_size, std::vector<cv::Point2f> &cornersf) {
+        double boardSize[2];
+        auto coderImage = cvMat2MatlabCoderArray(grayScaleImage);
+        coder::array<double, 2U> corners;
+        matlabCheckerBoardDetect(coderImage, corners, boardSize);
+        int numCorners = (boardSize[0] - 1) * (boardSize[1] - 1);
+        if(numCorners != chessboard_pattern_size.area()) {
+            ROS_WARN_STREAM("Found " << numCorners << " while " << chessboard_pattern_size.area() << " were required.");
+            return false;
+        }
+        for (int i = 0; i < numCorners; ++i) cornersf.push_back({corners[i] - 1, corners[numCorners + i] - 1}); // Matlab's indexing starts from 1, hence, need to subtract 1
+        return true;
+    }
+
     std::tuple<std::vector<cv::Point3d>, cv::Mat>
     FeatureExtractor::locateChessboard(const sensor_msgs::Image::ConstPtr& image)
     {
@@ -640,8 +670,7 @@ namespace cam_lidar_calibration
         std::vector<cv::Point2f> cornersf;
         std::vector<cv::Point2d> corners;
         // Find chessboard pattern in the image
-        bool pattern_found = findChessboardCorners(gray, i_params.chessboard_pattern_size, cornersf,
-                                                   cv::CALIB_CB_ADAPTIVE_THRESH + cv::CALIB_CB_NORMALIZE_IMAGE);
+        bool pattern_found = detectChessBoardCorners(gray, i_params.chessboard_pattern_size, cornersf);
         if (!pattern_found)
         {
             ROS_WARN("No chessboard found");
@@ -650,10 +679,7 @@ namespace cam_lidar_calibration
             return std::make_tuple(empty_corners, empty_normal);
         }
         ROS_INFO("Chessboard found");
-        // Find corner points with sub-pixel accuracy
-        // This throws an exception if the corner points are doubles and not floats!?!
-        cornerSubPix(gray, cornersf, Size(11, 11), Size(-1, -1), TermCriteria(CV_TERMCRIT_EPS + CV_TERMCRIT_ITER, 30, 0.1));
-
+        
         for (auto& corner : cornersf)
         {
             corners.push_back(cv::Point2d(corner));
