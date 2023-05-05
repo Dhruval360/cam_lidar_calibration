@@ -7,15 +7,34 @@
 using actionlib::SimpleActionServer;
 using cam_lidar_calibration::FeatureExtractor;
 
-#include "matlab_checkerboard_detection/matlabCheckerBoardDetect.h"
-#include "matlab_checkerboard_detection/matlabCheckerBoardDetect_internal_types.h"
+#if defined(__x86_64__)
+    #include "matlab_checkerboard_detection/x86_64/matlabCheckerBoardDetect.h"
+    #include "matlab_checkerboard_detection/x86_64/matlabCheckerBoardDetect_internal_types.h"
+#elif defined(__aarch64__)
+    #include "matlab_checkerboard_detection/aarch64/matlabCheckerBoardDetect.h"
+    #include "matlab_checkerboard_detection/aarch64/matlabCheckerBoardDetect_internal_types.h"
+#else
+    #error "Unsupported CPU type"
+#endif
 
 int main(int argc, char** argv)
 {
-    static rtRunTimeErrorInfo s_emlrtRTEI{
-        1,                         // lineNo
-        "matlabCheckerBoardDetect" // fName
-    };
+    #if defined(__x86_64__)
+        static rtRunTimeErrorInfo s_emlrtRTEI{
+            1,                         // lineNo
+            "matlabCheckerBoardDetect" // fName
+        };
+    #elif defined(__aarch64__)
+        static rtRunTimeErrorInfo s_emlrtRTEI{
+            1,                            // lineNo
+            1,                            // colNo
+            "matlabCheckerBoardDetect"    // fName
+            "feature_extraction_node.cpp" // pName
+        };
+    #else
+        #error "Unsupported CPU type"
+    #endif
+    
     // Initialize Node and handles
     ros::init(argc, argv, "FeatureExtractor");
     ros::NodeHandle n;

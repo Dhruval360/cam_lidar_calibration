@@ -9,16 +9,16 @@
 //
 
 // Include files
-#include "matlab_checkerboard_detection/matlabCheckerBoardDetect.h"
-#include "matlab_checkerboard_detection/matlabCheckerBoardDetect_internal_types.h"
-#include "matlab_checkerboard_detection/rt_nonfinite.h"
-#include "matlab_checkerboard_detection/coder_array.h"
-#include "matlab_checkerboard_detection/libmwbwlookup_tbb.h"
-#include "matlab_checkerboard_detection/libmwimfilter.h"
-#include "matlab_checkerboard_detection/libmwimregionalmax.h"
-#include "matlab_checkerboard_detection/libmwippfilter.h"
+#include "matlabCheckerBoardDetect.h"
+#include "matlabCheckerBoardDetect_internal_types.h"
+#include "rt_nonfinite.h"
+#include "coder_array.h"
+#include "libmwbwlookup_tbb.h"
+#include "libmwimfilter.h"
+#include "libmwimregionalmax.h"
+#include "libmwippfilter.h"
 #include <omp.h>
-#include "matlab_checkerboard_detection/rt_defines.h"
+#include "rt_defines.h"
 #include <algorithm>
 #include <cmath>
 #include <cstdio>

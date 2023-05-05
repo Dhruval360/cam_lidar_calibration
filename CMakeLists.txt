@@ -3,17 +3,32 @@ project(cam_lidar_calibration)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
-set(MATLAB_LIBRARIES
-    mwbwlookup_tbb
-    mwippfilter
-    stdc++
-    mwimfilter
-    mwipp
-    tbbmalloc
-    mwimregionalmax
-    mwnhood
-    tbb
-)
+
+if(${CMAKE_SYSTEM_PROCESSOR} MATCHES "x86_64")
+  set(CPU_ARCHITECTURE "x86_64")
+  set(MATLAB_LIBRARIES
+      mwbwlookup_tbb
+      mwippfilter
+      stdc++
+      mwimfilter
+      mwipp
+      tbbmalloc
+      mwimregionalmax
+      mwnhood
+      tbb
+  )
+  set(MATLAB_DEPENDENCIES_LIBRARY_PATH lib/matlab_checkerboard_detection/x86_64)
+  FILE(GLOB_RECURSE CHECKERBOARD_DETECTOR_DEPS src/matlab_checkerboard_detection/x86_64/*)
+elseif(${CMAKE_SYSTEM_PROCESSOR} MATCHES "aarch64")
+  set(CPU_ARCHITECTURE "aarch64")
+  FILE(GLOB_RECURSE CHECKERBOARD_DETECTOR_DEPS src/matlab_checkerboard_detection/aarch64/*)
+else()
+    message(FATAL_ERROR "Unsupported CPU architecture: ${CMAKE_SYSTEM_PROCESSOR}")
+endif()
+
+message("CPU architecture: ${CPU_ARCHITECTURE}")
+
+
 
 find_package(catkin REQUIRED COMPONENTS
   actionlib
@@ -47,12 +62,14 @@ endif()
 ## Setup include directories
 include_directories(
   include
+  include/matlab_checkerboard_detection
+  include/matlab_checkerboard_detection/${CPU_ARCHITECTURE}
   ${catkin_INCLUDE_DIRS}
   ${OpenCV_INCLUDE_DIRS}
   ${Eigen_INCLUDE_DIRS}
   )
 
-link_directories(${catkin_LIBRARY_DIRS} lib)
+link_directories(${catkin_LIBRARY_DIRS} ${MATLAB_DEPENDENCIES_LIBRARY_PATH})
 
 add_definitions(-DQT_NO_KEYWORDS)
 
@@ -92,11 +109,8 @@ add_library(cam_lidar_calibration
   src/feature_extractor.cpp
   src/load_params.cpp
   src/optimiser.cpp
-  src/matlabCheckerBoardDetect.cpp
-  src/rt_nonfinite.cpp
-  src/rtGetInf.cpp
-  src/rtGetNaN.cpp
-        )
+  ${CHECKERBOARD_DETECTOR_DEPS}
+  )
 target_link_libraries(cam_lidar_calibration
   ${catkin_LIBRARIES}
   ${OpenCV_LIBS}

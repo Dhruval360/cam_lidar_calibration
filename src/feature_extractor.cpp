@@ -37,7 +37,15 @@
 
 // Matlab Checkerboard Detection Algorithm
 #include "matlab_checkerboard_detection/coder_array.h"
-#include "matlab_checkerboard_detection/matlabCheckerBoardDetect.h"
+
+#if defined(__x86_64__)
+    #include "matlab_checkerboard_detection/x86_64/matlabCheckerBoardDetect.h"
+#elif defined(__aarch64__)
+    #include "matlab_checkerboard_detection/aarch64/matlabCheckerBoardDetect.h"
+#else
+    #error "Unsupported CPU type"
+#endif
+
 
 
 using cv::findChessboardCorners;
