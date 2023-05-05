@@ -638,7 +638,7 @@ namespace cam_lidar_calibration
         result.set_size(grayscaleImage.cols, grayscaleImage.rows);
         for (int idx0{0}; idx0 < result.size(0); idx0++) {
             for (int idx1{0}; idx1 < result.size(1); idx1++) {
-                result[idx0 + result.size(0) * idx1] = grayscaleImage.at<unsigned char>(idx0, idx1); // Matlab uses Column Major representation
+                result[idx0 + result.size(0) * idx1] = grayscaleImage.at<unsigned char>(idx1, idx0); // Matlab uses Column Major representation
             }
         }
         return result;
@@ -654,7 +654,14 @@ namespace cam_lidar_calibration
             ROS_WARN_STREAM("Found " << numCorners << " while " << chessboard_pattern_size.area() << " were required.");
             return false;
         }
-        for (int i = 0; i < numCorners; ++i) cornersf.push_back({corners[i] - 1, corners[numCorners + i] - 1}); // Matlab's indexing starts from 1, hence, need to subtract 1
+        for (int i = 0; i < numCorners; ++i) {
+            cv::Point2f corner = {(float) corners[numCorners + i] - 1, (float) corners[i] - 1}; // Matlab's indexing starts from 1, hence, need to subtract 1
+            cornersf.push_back(corner);
+            if(isnan(corner.x) || isnan(corner.y)) {
+                ROS_WARN("Invalid Corner Points Detected. Aborting detectChessBoardCorners.");
+                return false;
+            }
+        }
         return true;
     }
 
