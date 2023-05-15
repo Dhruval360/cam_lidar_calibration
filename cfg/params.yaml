@@ -1,8 +1,21 @@
 # Topics
-# camera_topic: "/zed2i/zed_node/left/image_rect_color"
-# camera_info: "/zed2i/zed_node/left/camera_info"
-camera_topic: "/flir_lwir/image_processed"
-camera_info: "/flir_lwir/camera_info"
+
+## ZED (RGB)
+camera_topic: "/zed2i/zed_node/left/image_rect_color"
+camera_info: "/zed2i/zed_node/left/camera_info"
+
+## LWIR
+# camera_topic: "/flir_lwir/image_processed"
+# camera_info: "/flir_lwir/camera_info"
+
+## MWIR
+# camera_topic: "/telops_mwir/image_processed"
+# camera_info: "/telops_mwir/camera_info"
+
+## SWIR
+# camera_topic: "/flir_swir/image_processed"
+# camera_info: "/flir_swir/camera_info"
+
 lidar_topic: "/velodyne_points"
 
 # Dynamic rqt_reconfigure default bounds
@@ -29,15 +42,28 @@ feature_extraction:
 #     x: 0
 #     y: 25.5 # 15mm, 66mm
 
-# Big Board
+# # Big Board
+# chessboard:
+#   pattern_size:
+#     height: 7
+#     width: 5 
+#   square_length: 94
+#   board_dimension:
+#     width: 598
+#     height: 1055
+#   translation_error:
+#     x: 0 
+#     y: 0 #145, 152
+
+#  Big Board 2
 chessboard:
   pattern_size:
     height: 7
     width: 5 
-  square_length: 94
+  square_length: 95
   board_dimension:
-    width: 598
-    height: 1055
+    width: 611
+    height: 917
   translation_error:
-    x: 0 
-    y: 3.5 #145, 152
+    x: 0.5 
+    y: -0.25
